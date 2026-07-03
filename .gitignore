@@ -2,6 +2,7 @@
 # Place your model.pth in the project root; it is loaded at runtime.
 model.pth
 *.pth
+models/
 
 # Python
 __pycache__/

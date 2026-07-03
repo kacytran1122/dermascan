@@ -1,89 +1,75 @@
 # DermaScan — Skin Lesion Analysis
 
-A deep-learning web app that classifies dermoscopic skin-lesion images as
+A Streamlit web app that classifies dermoscopic skin-lesion images as
 **benign** or **malignant**, with a confidence score. The model is a fine-tuned
 **EfficientNetV2L** (PyTorch) binary classifier trained on a melanoma dataset.
 
 > ⚠️ **Not medical advice.** This is a research/educational demo, not a diagnostic
 > device. Always consult a qualified dermatologist.
 
-![Stack](https://img.shields.io/badge/model-EfficientNetV2L-6ea8ff)
-![Backend](https://img.shields.io/badge/backend-FastAPI-2fd39b)
+![Model](https://img.shields.io/badge/model-EfficientNetV2L-0f766e)
+![UI](https://img.shields.io/badge/UI-Streamlit-ff4b4b)
 ![Framework](https://img.shields.io/badge/framework-PyTorch-ee4c2c)
 
 ## Features
 
-- 🖼️ Drag-and-drop / browse image upload with live preview
-- 🧠 Real-time inference via a FastAPI backend
-- 📊 Animated confidence gauge and per-class probability bars
-- 📱 Responsive, dark, glassmorphic UI
-- 🔌 Simple JSON API (`/api/predict`, `/api/health`)
+- Image upload with preview (JPG / PNG)
+- Real-time inference on the trained model
+- Benign / malignant verdict with per-class probabilities and confidence
+- Clean, clinical interface built with Streamlit
 
 ## Project structure
 
 ```
 melanoma-model/
-├── backend/
-│   ├── app.py              # FastAPI server + inference
-│   └── requirements.txt
-├── frontend/
-│   ├── index.html          # UI
-│   ├── styles.css
-│   └── app.js
+├── streamlit_app.py        # Streamlit UI + inference
+├── .streamlit/
+│   └── config.toml         # theme
+├── requirements.txt
 ├── notebooks/
 │   ├── train.ipynb         # model training
 │   └── test.ipynb          # single-image inference demo
-├── model.pth               # trained weights (NOT in git — see below)
+├── model.pth               # trained weights (not in git — see below)
 └── README.md
 ```
 
 ## Getting started
 
-### 1. Add the model
-
-The trained weights (`model.pth`, ~450 MB) are **not** committed to GitHub because
-they exceed the 100 MB file limit. Place your `model.pth` in the project root, or
-point the server at it:
+### 1. Install dependencies
 
 ```bash
-export MODEL_PATH=/path/to/model.pth
-```
-
-### 2. Install dependencies
-
-```bash
-cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### 2. Provide the model weights
+
+The trained weights (`model.pth`, ~450 MB) are **not** committed to GitHub
+because they exceed the 100 MB file limit. You have two options:
+
+- **Local file:** place `model.pth` in the project root (or set
+  `export MODEL_PATH=/path/to/model.pth`).
+- **Automatic download:** if no local file is found, the app downloads the
+  weights from the shared Google Drive folder on first run (via `gdown`).
+
 ### 3. Run
 
 ```bash
-# from the backend/ directory
-uvicorn app:app --reload --port 8000
+streamlit run streamlit_app.py
 ```
 
-Then open **http://localhost:8000** in your browser.
+Streamlit opens the app at **http://localhost:8501**.
 
-## API
+## Deploying to Streamlit Community Cloud
 
-### `POST /api/predict`
-Multipart form upload with an `file` image field.
+1. Push this repo to GitHub (already done).
+2. On [share.streamlit.io](https://share.streamlit.io), create a new app
+   pointing at `streamlit_app.py`.
+3. The app downloads `model.pth` from Google Drive automatically on first run.
 
-```json
-{
-  "prediction": "Benign",
-  "probability_malignant": 0.0123,
-  "confidence": 0.9877,
-  "logit": -4.39
-}
-```
-
-### `GET /api/health`
-```json
-{ "status": "ok", "model_loaded": true, "device": "cpu" }
-```
+> Note: EfficientNetV2L is a large model. On the free Community Cloud tier
+> (limited RAM), loading may be slow or memory-constrained; a machine with
+> ≥ 2 GB RAM is recommended.
 
 ## Model details
 
