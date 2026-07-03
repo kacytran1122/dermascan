@@ -1,5 +1,5 @@
 """
-DermaScan — skin lesion analysis
+DermaScan: skin lesion analysis
 Streamlit interface for the EfficientNetV2L benign/malignant classifier.
 """
 
@@ -22,14 +22,14 @@ POSTER_PATH = BASE_DIR / "MELANOMA CANCER PREDICTION POSTER.jpg"
 DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1FoXg5obn5oLQG6qd_-EyBm8j0DYwyw2Y"
 
 st.set_page_config(
-    page_title="DermaScan — Melanoma Screening",
+    page_title="DermaScan: Melanoma Screening",
     page_icon="🩺",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 # --------------------------------------------------------------------------- #
-# Styling — clean business / SaaS
+# Styling: clean business / SaaS
 # --------------------------------------------------------------------------- #
 st.markdown(
     """
@@ -37,8 +37,25 @@ st.markdown(
       :root { --blue: #2563eb; --blue-dark: #1d4ed8; --ink: #0f172a; --slate: #475569;
               --line: #e2e8f0; --bg: #f8fafc; }
 
-      .stApp { background: var(--bg); color: var(--ink);
-        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      /* Animated background: a slow drifting color wash behind the content */
+      .stApp {
+        color: var(--ink);
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background:
+          radial-gradient(circle at 18% 22%, rgba(59,130,246,0.18), transparent 42%),
+          radial-gradient(circle at 82% 16%, rgba(139,92,246,0.15), transparent 42%),
+          radial-gradient(circle at 68% 82%, rgba(16,185,129,0.14), transparent 45%),
+          radial-gradient(circle at 26% 86%, rgba(37,99,235,0.13), transparent 45%),
+          var(--bg);
+        background-size: 180% 180%, 170% 170%, 200% 200%, 190% 190%, 100% 100%;
+        background-attachment: fixed;
+        animation: bgShift 26s ease-in-out infinite alternate;
+      }
+      @keyframes bgShift {
+        0%   { background-position:  0% 0%, 100% 0%,  50% 100%,  0% 100%, 0 0; }
+        100% { background-position: 25% 18%, 75% 12%, 62% 82%, 18% 88%, 0 0; }
+      }
+      @media (prefers-reduced-motion: reduce) { .stApp { animation: none; } }
       .block-container { max-width: 1120px; padding-top: 1.2rem; padding-bottom: 4rem; }
       #MainMenu, footer, header [data-testid="stToolbar"], [data-testid="stDecoration"] { display: none; }
 
@@ -83,7 +100,7 @@ st.markdown(
       [data-testid="stFileUploaderDropzone"] { background: var(--bg); border: 1.4px dashed #cbd5e1; border-radius: 11px; }
       [data-testid="stFileUploaderDropzone"]:hover { border-color: var(--blue); background: #eff6ff; }
 
-      /* Primary button — solid blue, business rectangle */
+      /* Primary button: solid blue, business rectangle */
       .stButton > button[kind="primary"] {
         background: var(--blue); color: #fff; border: none; border-radius: 9px; font-weight: 600;
         padding: 0.65rem 1rem; box-shadow: 0 1px 2px rgba(37,99,235,0.35); transition: background 0.15s, transform 0.1s; }
@@ -214,7 +231,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 st.markdown(
-    '<p class="sub">Melanoma is a small share of skin cancers but causes most skin-cancer deaths — '
+    '<p class="sub">Melanoma is a small share of skin cancers but causes most skin-cancer deaths, '
     "and it is highly treatable when caught early. DermaScan gives a fast first-pass read on a lesion "
     "image: benign or malignant, with a confidence score.</p>",
     unsafe_allow_html=True,
@@ -246,7 +263,7 @@ left, right = st.columns([1, 1], gap="large")
 
 with left:
     with st.container(border=True):
-        st.markdown('<p class="card-head">Step 1 — Input</p>', unsafe_allow_html=True)
+        st.markdown('<p class="card-head">Step 1 · Input</p>', unsafe_allow_html=True)
         st.markdown('<p class="card-title">Upload an image</p>', unsafe_allow_html=True)
         st.write("")
         uploaded = st.file_uploader("Upload", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
@@ -263,7 +280,7 @@ with left:
 
 with right:
     with st.container(border=True):
-        st.markdown('<p class="card-head">Step 2 — Result</p>', unsafe_allow_html=True)
+        st.markdown('<p class="card-head">Step 2 · Result</p>', unsafe_allow_html=True)
         st.markdown('<p class="card-title">Model assessment</p>', unsafe_allow_html=True)
         st.write("")
 
@@ -313,7 +330,7 @@ st.markdown('<p class="sec-title">From photo to prediction</p>', unsafe_allow_ht
 st.write("")
 
 steps = [
-    ("1", "Upload", "Add a dermoscopic photo of the lesion. No manual scoring — the model does the reading."),
+    ("1", "Upload", "Add a dermoscopic photo of the lesion. No manual scoring, the model does the reading."),
     ("2", "Analyze", "The image is resized to 112×112 and passed through an EfficientNetV2L network."),
     ("3", "Read the result", "You get a benign / malignant call, per-class probabilities, and a confidence score."),
 ]
@@ -343,7 +360,7 @@ roadmap = [
      "exportable reports a clinician can actually use."),
     ("Mobile app",
      "Bring screening to the phone camera, with on-device inference, so a first-pass check works "
-     "anywhere — including places far from a dermatologist."),
+     "anywhere, including places far from a dermatologist."),
 ]
 rcols = st.columns(3, gap="medium")
 for col, (title, desc) in zip(rcols, roadmap):
@@ -366,7 +383,7 @@ with about_l:
     st.markdown(
         '<p class="sec-sub">DermaScan was built for the <b>1 Idea 1 World</b> competition '
         '(<span class="medal">Gold Medal</span>, 2022–2023). Melanoma is one of the most treatable '
-        "cancers when caught early, and most people have no fast way to get a first opinion — so we "
+        "cancers when caught early, and most people have no fast way to get a first opinion, so we "
         "trained a model that provides one.</p>",
         unsafe_allow_html=True,
     )

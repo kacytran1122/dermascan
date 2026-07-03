@@ -7,7 +7,7 @@ EfficientNetV2L model we trained on a melanoma image dataset.
 **Live app:** https://dermascan-b6rvmbxihuta9ylq72sw8g.streamlit.app
 
 > DermaScan is a student project, not a medical device. It can't diagnose
-> anything — if you're worried about a spot on your skin, see a dermatologist.
+> anything. If you're worried about a spot on your skin, see a dermatologist.
 
 ## The project
 
@@ -30,8 +30,8 @@ and [`MELANOMA CANCER PREDICTION.pdf`](MELANOMA%20CANCER%20PREDICTION.pdf).
 
 ## Running it locally
 
-You'll need Python 3.9 or newer. The steps are the same on every platform —
-only the virtual-environment activation command differs.
+You'll need Python 3.9 or newer. The steps are the same on every platform.
+Only the virtual-environment activation command differs.
 
 **1. Get the code**
 
@@ -75,7 +75,7 @@ pip install -r requirements.txt
 
 - Download it from our Google Drive and drop `model.pth` in the project root:
   https://drive.google.com/drive/folders/1FoXg5obn5oLQG6qd_-EyBm8j0DYwyw2Y
-- Or just run the app — if it doesn't find a local file, it pulls the weights
+- Or just run the app. If it doesn't find a local file, it pulls the weights
   from that same Drive folder on first launch.
 
 **5. Run the app**
@@ -120,7 +120,7 @@ someone notices a spot, not only when they're at a computer. A native mobile app
 would let people point their phone camera at a lesion and get an instant
 first-pass read, ideally with the model running on-device so it works offline and
 keeps images private. That matters most for people who live far from a
-dermatologist or can't easily get an appointment — putting a quick, free check in
+dermatologist or can't easily get an appointment. Putting a quick, free check in
 everyone's pocket is the whole point of the project.
 
 ## Layout
@@ -130,5 +130,5 @@ streamlit_app.py     the app and inference code
 .streamlit/          theme
 notebooks/           training and inference notebooks
 requirements.txt
-model.pth            weights (not committed — see above)
+model.pth            weights (not committed, see above)
 ```
