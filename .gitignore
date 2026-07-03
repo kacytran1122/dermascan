@@ -1,0 +1,20 @@
+# Trained model weights — too large for GitHub (450 MB > 100 MB limit).
+# Place your model.pth in the project root; it is loaded at runtime.
+model.pth
+*.pth
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
