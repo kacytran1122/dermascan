@@ -11,12 +11,15 @@ EfficientNetV2L model we trained on a melanoma image dataset.
 
 ## The project
 
-We built DermaScan for the **1 Idea 1 World** competition (2022–2023). Skin
-cancer is very treatable when it's caught early, and most people don't have an
-easy way to get a first opinion, so we trained a model that gives one in a few
-seconds.
+We built DermaScan for the **1 Idea 1 World** competition, where it won a
+**Gold Medal** (2022–2023). Melanoma is only a small share of skin cancers but
+causes most skin-cancer deaths, and it's very treatable when it's caught early.
+Most people don't have an easy way to get a first opinion, so we trained a model
+that gives one in a few seconds.
 
-Team of four. Team lead: Kacy Tran.
+Team of four. Team lead: Kacy Tran. The research poster is in this repo:
+[`MELANOMA CANCER PREDICTION POSTER.jpg`](MELANOMA%20CANCER%20PREDICTION%20POSTER.jpg)
+and [`MELANOMA CANCER PREDICTION.pdf`](MELANOMA%20CANCER%20PREDICTION.pdf).
 
 ## What it does
 
@@ -27,21 +30,55 @@ Team of four. Team lead: Kacy Tran.
 
 ## Running it locally
 
-Install the dependencies:
+You'll need Python 3.9 or newer. The steps are the same on every platform —
+only the virtual-environment activation command differs.
+
+**1. Get the code**
+
+```bash
+git clone https://github.com/kacytran1122/dermascan.git
+cd dermascan
+```
+
+**2. Create and activate a virtual environment**
+
+macOS / Linux:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Windows (PowerShell):
+
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+Windows (Command Prompt):
+
+```bat
+py -m venv .venv
+.venv\Scripts\activate.bat
+```
+
+**3. Install the dependencies**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Get the model weights. `model.pth` is about 450 MB, so it isn't in the repo.
-Two options:
+**4. Get the model weights**
+
+`model.pth` is about 450 MB, so it isn't in the repo. Two options:
 
 - Download it from our Google Drive and drop `model.pth` in the project root:
   https://drive.google.com/drive/folders/1FoXg5obn5oLQG6qd_-EyBm8j0DYwyw2Y
 - Or just run the app — if it doesn't find a local file, it pulls the weights
   from that same Drive folder on first launch.
 
-Start the app:
+**5. Run the app**
 
 ```bash
 streamlit run streamlit_app.py
@@ -58,6 +95,33 @@ It opens at http://localhost:8501.
 
 The full training run is in `notebooks/train.ipynb`, and
 `notebooks/test.ipynb` shows inference on a single image.
+
+## Future directions
+
+**Broader, more diverse data.** The biggest lever for accuracy is the dataset.
+Right now the model learns from a limited set of images, which means it performs
+best on the kinds of cases and skin tones it saw most often during training. The
+plan is to gather more data and deliberately balance it across skin tones,
+lesion types, and imaging conditions, so the model generalizes to real patients
+instead of overfitting to a narrow slice of them. More and cleaner data is the
+most direct path to a model people can actually trust.
+
+**A clinical-grade interface.** A yes/no answer isn't enough for a tool meant to
+support real decisions. The next step is to make the output explainable and
+practical: heatmaps that highlight the region of the lesion that drove the
+prediction, the ability to track a mole across multiple visits to see whether
+it's changing, and clean, exportable reports a clinician or patient can keep on
+file. The goal is to move DermaScan from a demo that returns a label to a tool
+that shows its reasoning and fits into how people already keep track of their
+skin.
+
+**A mobile app.** Screening is most useful when it's available at the moment
+someone notices a spot, not only when they're at a computer. A native mobile app
+would let people point their phone camera at a lesion and get an instant
+first-pass read, ideally with the model running on-device so it works offline and
+keeps images private. That matters most for people who live far from a
+dermatologist or can't easily get an appointment — putting a quick, free check in
+everyone's pocket is the whole point of the project.
 
 ## Layout
 

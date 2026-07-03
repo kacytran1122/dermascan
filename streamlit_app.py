@@ -17,126 +17,112 @@ IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 
 BASE_DIR = Path(__file__).resolve().parent
+POSTER_PATH = BASE_DIR / "MELANOMA CANCER PREDICTION POSTER.jpg"
 # Google Drive folder holding the trained weights (used when no local file).
 DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1FoXg5obn5oLQG6qd_-EyBm8j0DYwyw2Y"
 
 st.set_page_config(
-    page_title="DermaScan — Skin Lesion Analysis",
+    page_title="DermaScan — Melanoma Screening",
     page_icon="🩺",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 # --------------------------------------------------------------------------- #
-# Styling
+# Styling — clean business / SaaS
 # --------------------------------------------------------------------------- #
 st.markdown(
     """
     <style>
-      :root { --sky: #38bdf8; --sky-soft: #7dd3fc; }
+      :root { --blue: #2563eb; --blue-dark: #1d4ed8; --ink: #0f172a; --slate: #475569;
+              --line: #e2e8f0; --bg: #f8fafc; }
 
-      .stApp {
-        background:
-          radial-gradient(1100px 620px at 82% -8%, rgba(56,189,248,0.16), transparent 60%),
-          radial-gradient(900px 600px at -5% 108%, rgba(45,120,220,0.12), transparent 55%),
-          #0a0a0a;
-        color: #ededed;
-        font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
-      }
-      .block-container { max-width: 1080px; padding-top: 2.2rem; padding-bottom: 4rem; }
+      .stApp { background: var(--bg); color: var(--ink);
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      .block-container { max-width: 1120px; padding-top: 1.2rem; padding-bottom: 4rem; }
       #MainMenu, footer, header [data-testid="stToolbar"], [data-testid="stDecoration"] { display: none; }
 
-      /* Top bar */
-      .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3.2rem; }
-      .wordmark { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.16em; }
-      .tagpill {
-        font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sky-soft);
-        border: 1px solid rgba(56,189,248,0.35); border-radius: 999px; padding: 5px 13px;
-        background: rgba(56,189,248,0.07);
-      }
+      /* Navbar */
+      .nav { display: flex; align-items: center; justify-content: space-between;
+        padding: 0.9rem 0 1.1rem; border-bottom: 1px solid var(--line); margin-bottom: 2.4rem; }
+      .nav-brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; font-size: 1.12rem; color: var(--ink); }
+      .nav-mark { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #3b82f6, #2563eb);
+        display: grid; place-items: center; color: #fff; font-size: 0.9rem; box-shadow: 0 2px 6px rgba(37,99,235,0.35); }
+      .nav-links { display: flex; gap: 1.6rem; font-size: 0.9rem; color: var(--slate); }
+      .nav-links span { font-weight: 500; }
+      .nav-cta { display: inline-flex; align-items: center; gap: 7px; font-size: 0.8rem; font-weight: 600; color: #047857;
+        background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 999px; padding: 6px 13px; }
+      .nav-cta .dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; }
 
       /* Hero */
-      .eyebrow { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sky); }
-      .hero-h1 {
-        font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 800; line-height: 1.03;
-        letter-spacing: -0.02em; margin: 0.7rem 0 0; color: #ffffff;
-      }
-      .hero-h1 .accent { color: var(--sky); }
-      .hero-sub { color: rgba(237,237,237,0.62); font-size: 1.08rem; line-height: 1.6; max-width: 40rem; margin-top: 1.1rem; }
+      .eyebrow { font-size: 0.76rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--blue); }
+      .h1 { font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.08;
+        color: var(--ink); margin: 0.6rem 0 0; }
+      .sub { color: var(--slate); font-size: 1.05rem; line-height: 1.6; max-width: 42rem; margin-top: 0.9rem; }
 
-      .section-eyebrow {
-        font-size: 0.72rem; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase;
-        color: rgba(237,237,237,0.42); margin-bottom: 0.7rem;
-      }
-      .card-head { font-size: 1.05rem; font-weight: 700; color: #fff; }
+      /* KPI strip */
+      .kpi { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1.1rem 1.3rem;
+        box-shadow: 0 1px 2px rgba(15,23,42,0.04); height: 100%; }
+      .kpi-num { font-size: 1.5rem; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
+      .kpi-label { font-size: 0.82rem; color: var(--slate); margin-top: 0.15rem; }
 
-      /* Glass cards via bordered container */
+      /* Section headers */
+      .sec-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--blue); }
+      .sec-title { font-size: 1.5rem; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; margin: 0.25rem 0 0.2rem; }
+      .sec-sub { color: var(--slate); font-size: 0.96rem; margin-bottom: 0.4rem; }
+      .card-head { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #94a3b8; }
+      .card-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-top: 0.15rem; }
+
+      /* Cards (bordered containers) */
       div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: rgba(255,255,255,0.035);
-        border: 1px solid rgba(255,255,255,0.09) !important;
-        border-radius: 18px !important;
-        backdrop-filter: blur(10px);
+        background: #ffffff; border: 1px solid var(--line) !important; border-radius: 14px !important;
+        box-shadow: 0 1px 3px rgba(15,23,42,0.05), 0 1px 2px rgba(15,23,42,0.03);
       }
 
       /* File uploader */
-      [data-testid="stFileUploaderDropzone"] {
-        background: rgba(255,255,255,0.02); border: 1.4px dashed rgba(255,255,255,0.16);
-        border-radius: 14px; transition: border-color 0.2s, background 0.2s;
-      }
-      [data-testid="stFileUploaderDropzone"]:hover { border-color: var(--sky); background: rgba(56,189,248,0.05); }
-      [data-testid="stFileUploaderDropzone"] * { color: rgba(237,237,237,0.72) !important; }
-      [data-testid="stBaseButton-secondary"] {
-        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18);
-        color: #fff; border-radius: 999px;
-      }
+      [data-testid="stFileUploaderDropzone"] { background: var(--bg); border: 1.4px dashed #cbd5e1; border-radius: 11px; }
+      [data-testid="stFileUploaderDropzone"]:hover { border-color: var(--blue); background: #eff6ff; }
 
-      /* Primary button — white pill, dark text (Fitza CTA) */
+      /* Primary button — solid blue, business rectangle */
       .stButton > button[kind="primary"] {
-        background: #ffffff; color: #0a0a0a; border: none; border-radius: 999px;
-        font-weight: 700; padding: 0.7rem 1rem; transition: transform 0.12s, background 0.2s, box-shadow 0.2s;
-        box-shadow: 0 10px 30px -12px rgba(56,189,248,0.55);
-      }
-      .stButton > button[kind="primary"]:hover:not(:disabled) { background: #e0f2fe; transform: translateY(-1px); }
-      .stButton > button[kind="primary"]:active:not(:disabled) { transform: scale(0.98); }
-      .stButton > button[kind="primary"]:disabled { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.4); box-shadow: none; }
+        background: var(--blue); color: #fff; border: none; border-radius: 9px; font-weight: 600;
+        padding: 0.65rem 1rem; box-shadow: 0 1px 2px rgba(37,99,235,0.35); transition: background 0.15s, transform 0.1s; }
+      .stButton > button[kind="primary"]:hover:not(:disabled) { background: var(--blue-dark); }
+      .stButton > button[kind="primary"]:active:not(:disabled) { transform: translateY(1px); }
+      .stButton > button[kind="primary"]:disabled { background: #cbd5e1; color: #fff; box-shadow: none; }
 
       /* Verdict badge */
-      .badge {
-        display: inline-flex; align-items: center; gap: 8px; padding: 0.55rem 1.2rem; border-radius: 999px;
-        font-weight: 700; font-size: 1.2rem; letter-spacing: 0.01em;
-      }
+      .badge { display: inline-flex; align-items: center; gap: 8px; padding: 0.5rem 1.1rem; border-radius: 8px;
+        font-weight: 700; font-size: 1.1rem; }
       .badge .dot { width: 9px; height: 9px; border-radius: 50%; }
-      .badge-benign { background: rgba(56,189,248,0.12); color: var(--sky-soft); border: 1px solid rgba(56,189,248,0.4); }
-      .badge-benign .dot { background: var(--sky); box-shadow: 0 0 12px 2px rgba(56,189,248,0.7); }
-      .badge-malignant { background: rgba(244,63,94,0.12); color: #fda4af; border: 1px solid rgba(244,63,94,0.42); }
-      .badge-malignant .dot { background: #f43f5e; box-shadow: 0 0 12px 2px rgba(244,63,94,0.7); }
+      .badge-benign { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+      .badge-benign .dot { background: #10b981; }
+      .badge-malignant { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+      .badge-malignant .dot { background: #ef4444; }
 
       /* Metrics */
-      [data-testid="stMetricValue"] { font-size: 1.7rem; color: #fff; font-weight: 700; }
-      [data-testid="stMetricLabel"] p { color: rgba(237,237,237,0.5) !important; font-size: 0.78rem !important;
-        text-transform: uppercase; letter-spacing: 0.08em; }
-      .stProgress > div > div > div > div { background-image: linear-gradient(90deg, #2563eb, var(--sky)); }
-      .stProgress > div > div > div { background-color: rgba(255,255,255,0.07); }
-      .muted { color: rgba(237,237,237,0.55); font-size: 0.82rem; margin-bottom: 0.25rem; }
+      [data-testid="stMetricValue"] { font-size: 1.6rem; color: var(--ink); font-weight: 800; }
+      [data-testid="stMetricLabel"] p { color: var(--slate) !important; font-size: 0.78rem !important;
+        text-transform: uppercase; letter-spacing: 0.05em; }
+      .stProgress > div > div > div > div { background-image: linear-gradient(90deg, #3b82f6, #2563eb); }
+      .stProgress > div > div > div { background-color: #e2e8f0; }
+      .muted { color: var(--slate); font-size: 0.82rem; margin-bottom: 0.25rem; }
 
-      /* Timeline steps */
-      .step { display: flex; gap: 1rem; padding: 0.55rem 0; }
-      .step-num {
-        flex: 0 0 auto; width: 2.4rem; height: 2.4rem; border-radius: 50%;
-        display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; color: var(--sky-soft);
-        border: 1px solid rgba(56,189,248,0.5); background: rgba(10,10,10,0.6);
-      }
-      .step-title { font-weight: 600; color: #fff; margin: 0.2rem 0 0.15rem; }
-      .step-desc { color: rgba(237,237,237,0.55); font-size: 0.9rem; line-height: 1.5; }
+      /* Feature / roadmap cards */
+      .feat { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1.3rem;
+        box-shadow: 0 1px 2px rgba(15,23,42,0.04); height: 100%; }
+      .feat-ico { width: 38px; height: 38px; border-radius: 9px; background: #eff6ff; color: var(--blue);
+        display: grid; place-items: center; font-weight: 700; margin-bottom: 0.8rem; }
+      .feat-title { font-weight: 700; color: var(--ink); font-size: 1.02rem; margin-bottom: 0.35rem; }
+      .feat-desc { color: var(--slate); font-size: 0.9rem; line-height: 1.55; }
+      .feat-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+        color: #7c3aed; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 6px; padding: 2px 8px; margin-bottom: 0.7rem; }
 
-      .about-h { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; color: #fff; letter-spacing: -0.02em; }
-      .about-p { color: rgba(237,237,237,0.62); line-height: 1.65; font-size: 1rem; max-width: 42rem; }
-      .credit-pill {
-        display: inline-block; margin-top: 0.4rem; padding: 6px 14px; border-radius: 999px; font-size: 0.82rem;
-        color: rgba(237,237,237,0.8); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      }
-      hr { border-color: rgba(255,255,255,0.08); }
-      .disc { color: rgba(237,237,237,0.42); font-size: 0.82rem; line-height: 1.55; }
+      .credit-pill { display: inline-block; padding: 7px 15px; border-radius: 999px; font-size: 0.85rem;
+        color: var(--ink); background: #fff; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+      .medal { color: #b45309; font-weight: 700; }
+      hr { border-color: var(--line); }
+      .disc { color: #94a3b8; font-size: 0.82rem; line-height: 1.55; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -204,45 +190,66 @@ def predict(model, image: Image.Image):
 
 
 # --------------------------------------------------------------------------- #
-# Top bar + hero
+# Navbar
 # --------------------------------------------------------------------------- #
 st.markdown(
     """
-    <div class="topbar">
-      <span class="wordmark">DERMASCAN</span>
-      <span class="tagpill">EfficientNetV2 · PyTorch</span>
+    <div class="nav">
+      <div class="nav-brand"><span class="nav-mark">◆</span>DermaScan</div>
+      <div class="nav-links">
+        <span>Overview</span><span>How it works</span><span>Roadmap</span><span>About</span>
+      </div>
+      <div class="nav-cta"><span class="dot"></span>Model online</div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
+# --------------------------------------------------------------------------- #
+# Hero
+# --------------------------------------------------------------------------- #
+st.markdown('<p class="eyebrow">Melanoma screening</p>', unsafe_allow_html=True)
 st.markdown(
-    """
-    <p class="eyebrow">AI-assisted dermatology</p>
-    <h1 class="hero-h1">Know your skin,<br><span class="accent">before it speaks.</span></h1>
-    <p class="hero-sub">
-      Upload a dermoscopic image and DermaScan estimates whether a lesion looks
-      benign or malignant — in seconds, with a confidence score you can read at a glance.
-    </p>
-    """,
+    '<h1 class="h1">Early skin-cancer screening,<br>powered by deep learning</h1>',
     unsafe_allow_html=True,
 )
+st.markdown(
+    '<p class="sub">Melanoma is a small share of skin cancers but causes most skin-cancer deaths — '
+    "and it is highly treatable when caught early. DermaScan gives a fast first-pass read on a lesion "
+    "image: benign or malignant, with a confidence score.</p>",
+    unsafe_allow_html=True,
+)
+st.write("")
+
+k1, k2, k3 = st.columns(3)
+with k1:
+    st.markdown('<div class="kpi"><div class="kpi-num">≈ 96%</div>'
+                '<div class="kpi-label">Validation accuracy</div></div>', unsafe_allow_html=True)
+with k2:
+    st.markdown('<div class="kpi"><div class="kpi-num">EfficientNetV2L</div>'
+                '<div class="kpi-label">Model architecture</div></div>', unsafe_allow_html=True)
+with k3:
+    st.markdown('<div class="kpi"><div class="kpi-num">&lt; 1s</div>'
+                '<div class="kpi-label">Time per prediction (GPU)</div></div>', unsafe_allow_html=True)
+
 st.write("")
 st.write("")
 
 # --------------------------------------------------------------------------- #
 # Analyzer
 # --------------------------------------------------------------------------- #
+st.markdown('<p class="sec-eyebrow">Analyzer</p>', unsafe_allow_html=True)
+st.markdown('<p class="sec-title">Screen a lesion image</p>', unsafe_allow_html=True)
+st.write("")
+
 left, right = st.columns([1, 1], gap="large")
 
 with left:
     with st.container(border=True):
-        st.markdown('<p class="section-eyebrow">01 — Input</p>', unsafe_allow_html=True)
-        st.markdown('<p class="card-head">Upload a lesion image</p>', unsafe_allow_html=True)
+        st.markdown('<p class="card-head">Step 1 — Input</p>', unsafe_allow_html=True)
+        st.markdown('<p class="card-title">Upload an image</p>', unsafe_allow_html=True)
         st.write("")
-        uploaded = st.file_uploader(
-            "Upload", type=["jpg", "jpeg", "png"], label_visibility="collapsed"
-        )
+        uploaded = st.file_uploader("Upload", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
 
         image = None
         if uploaded is not None:
@@ -256,8 +263,8 @@ with left:
 
 with right:
     with st.container(border=True):
-        st.markdown('<p class="section-eyebrow">02 — Result</p>', unsafe_allow_html=True)
-        st.markdown('<p class="card-head">Model assessment</p>', unsafe_allow_html=True)
+        st.markdown('<p class="card-head">Step 2 — Result</p>', unsafe_allow_html=True)
+        st.markdown('<p class="card-title">Model assessment</p>', unsafe_allow_html=True)
         st.write("")
 
         if analyze and image is not None:
@@ -291,7 +298,7 @@ with right:
                 st.error(f"Could not run the model: {exc}")
         else:
             st.markdown(
-                '<p style="color:rgba(237,237,237,0.5);padding:2.2rem 0;">'
+                '<p style="color:#94a3b8;padding:2rem 0;">'
                 "Upload an image and select <b>Analyze lesion</b> to see the prediction.</p>",
                 unsafe_allow_html=True,
             )
@@ -301,29 +308,48 @@ with right:
 # --------------------------------------------------------------------------- #
 st.write("")
 st.write("")
-st.markdown('<p class="eyebrow">How it works</p>', unsafe_allow_html=True)
-st.markdown(
-    '<h2 style="font-size:1.9rem;font-weight:800;color:#fff;margin:0.3rem 0 1.4rem;letter-spacing:-0.02em;">'
-    "Three steps, no guesswork</h2>",
-    unsafe_allow_html=True,
-)
+st.markdown('<p class="sec-eyebrow">How it works</p>', unsafe_allow_html=True)
+st.markdown('<p class="sec-title">From photo to prediction</p>', unsafe_allow_html=True)
+st.write("")
 
 steps = [
-    ("Upload", "Drop a dermoscopic photo of the lesion. Everything runs on the model — no manual scoring."),
-    ("Analyze", "An EfficientNetV2L network trained on thousands of images reads the lesion at 112×112."),
-    ("Read the result", "Get a benign / malignant call, per-class probabilities, and a confidence score."),
+    ("1", "Upload", "Add a dermoscopic photo of the lesion. No manual scoring — the model does the reading."),
+    ("2", "Analyze", "The image is resized to 112×112 and passed through an EfficientNetV2L network."),
+    ("3", "Read the result", "You get a benign / malignant call, per-class probabilities, and a confidence score."),
 ]
-for i, (title, desc) in enumerate(steps, 1):
-    st.markdown(
-        f"""
-        <div class="step">
-          <div class="step-num">{i:02d}</div>
-          <div>
-            <p class="step-title">{title}</p>
-            <p class="step-desc">{desc}</p>
-          </div>
-        </div>
-        """,
+cols = st.columns(3, gap="medium")
+for col, (n, title, desc) in zip(cols, steps):
+    col.markdown(
+        f'<div class="feat"><div class="feat-ico">{n}</div>'
+        f'<div class="feat-title">{title}</div><div class="feat-desc">{desc}</div></div>',
+        unsafe_allow_html=True,
+    )
+
+# --------------------------------------------------------------------------- #
+# Roadmap / future directions
+# --------------------------------------------------------------------------- #
+st.write("")
+st.write("")
+st.markdown('<p class="sec-eyebrow">Roadmap</p>', unsafe_allow_html=True)
+st.markdown('<p class="sec-title">Where DermaScan goes next</p>', unsafe_allow_html=True)
+st.write("")
+
+roadmap = [
+    ("Broader, more diverse data",
+     "Grow the training set and balance it across skin tones and lesion types so the model stays "
+     "accurate for everyone, not just the cases it saw most."),
+    ("Clinical-grade interface",
+     "Add heatmaps that show which region drove a prediction, lesion tracking over time, and "
+     "exportable reports a clinician can actually use."),
+    ("Mobile app",
+     "Bring screening to the phone camera, with on-device inference, so a first-pass check works "
+     "anywhere — including places far from a dermatologist."),
+]
+rcols = st.columns(3, gap="medium")
+for col, (title, desc) in zip(rcols, roadmap):
+    col.markdown(
+        f'<div class="feat"><span class="feat-tag">Planned</span>'
+        f'<div class="feat-title">{title}</div><div class="feat-desc">{desc}</div></div>',
         unsafe_allow_html=True,
     )
 
@@ -333,25 +359,31 @@ for i, (title, desc) in enumerate(steps, 1):
 st.write("")
 st.write("")
 st.divider()
-st.markdown('<p class="eyebrow">About the project</p>', unsafe_allow_html=True)
-st.markdown('<p class="about-h">Built by students, for early detection</p>', unsafe_allow_html=True)
-st.markdown(
-    '<p class="about-p">DermaScan started as a student project for the <b>1 Idea 1 World</b> '
-    "competition (2022–2023). Skin cancer is one of the most treatable cancers when caught early — "
-    "so we trained a model that puts a fast, first-pass screening tool in anyone's hands.</p>",
-    unsafe_allow_html=True,
-)
-st.markdown(
-    '<span class="credit-pill">1 Idea 1 World · 2022–2023 &nbsp;·&nbsp; Team of 4 &nbsp;·&nbsp; '
-    "Team lead: Kacy Tran</span>",
-    unsafe_allow_html=True,
-)
+about_l, about_r = st.columns([1, 1], gap="large")
+with about_l:
+    st.markdown('<p class="sec-eyebrow">About the project</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sec-title">Built by students for early detection</p>', unsafe_allow_html=True)
+    st.markdown(
+        '<p class="sec-sub">DermaScan was built for the <b>1 Idea 1 World</b> competition '
+        '(<span class="medal">Gold Medal</span>, 2022–2023). Melanoma is one of the most treatable '
+        "cancers when caught early, and most people have no fast way to get a first opinion — so we "
+        "trained a model that provides one.</p>",
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<span class="credit-pill">1 Idea 1 World · <span class="medal">Gold Medal</span> · 2022–2023 '
+        "&nbsp;·&nbsp; Team of 4 &nbsp;·&nbsp; Team lead: Kacy Tran</span>",
+        unsafe_allow_html=True,
+    )
+with about_r:
+    if POSTER_PATH.exists():
+        st.image(str(POSTER_PATH), use_container_width=True, caption="Competition research poster")
 
 # --------------------------------------------------------------------------- #
 # Disclaimer
 # --------------------------------------------------------------------------- #
 st.write("")
-st.write("")
+st.divider()
 st.markdown(
     '<p class="disc"><b>Disclaimer.</b> DermaScan is a research and educational project. '
     "It is not a medical device and is not a substitute for professional diagnosis. "
