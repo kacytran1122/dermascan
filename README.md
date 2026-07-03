@@ -1,82 +1,70 @@
-# DermaScan — Skin Lesion Analysis
+# DermaScan
 
-A Streamlit web app that classifies dermoscopic skin-lesion images as
-**benign** or **malignant**, with a confidence score. The model is a fine-tuned
-**EfficientNetV2L** (PyTorch) binary classifier trained on a melanoma dataset.
+DermaScan looks at a photo of a skin lesion and gives a quick read on whether it
+looks benign or malignant, along with a confidence score. It runs on an
+EfficientNetV2L model we trained on a melanoma image dataset.
 
-> ⚠️ **Not medical advice.** This is a research/educational demo, not a diagnostic
-> device. Always consult a qualified dermatologist.
+**Live app:** https://dermascan-b6rvmbxihuta9ylq72sw8g.streamlit.app
 
-![Model](https://img.shields.io/badge/model-EfficientNetV2L-0f766e)
-![UI](https://img.shields.io/badge/UI-Streamlit-ff4b4b)
-![Framework](https://img.shields.io/badge/framework-PyTorch-ee4c2c)
+> DermaScan is a student project, not a medical device. It can't diagnose
+> anything — if you're worried about a spot on your skin, see a dermatologist.
 
-## Features
+## The project
 
-- Image upload with preview (JPG / PNG)
-- Real-time inference on the trained model
-- Benign / malignant verdict with per-class probabilities and confidence
-- Clean, clinical interface built with Streamlit
+We built DermaScan for the **1 Idea 1 World** competition (2022–2023). Skin
+cancer is very treatable when it's caught early, and most people don't have an
+easy way to get a first opinion, so we trained a model that gives one in a few
+seconds.
 
-## Project structure
+Team of four. Team lead: Kacy Tran.
 
-```
-melanoma-model/
-├── streamlit_app.py        # Streamlit UI + inference
-├── .streamlit/
-│   └── config.toml         # theme
-├── requirements.txt
-├── notebooks/
-│   ├── train.ipynb         # model training
-│   └── test.ipynb          # single-image inference demo
-├── model.pth               # trained weights (not in git — see below)
-└── README.md
-```
+## What it does
 
-## Getting started
+- Take a dermoscopic photo (JPG or PNG)
+- Run it through the model
+- Show a benign / malignant call, the probability for each class, and a
+  confidence score
 
-### 1. Install dependencies
+## Running it locally
+
+Install the dependencies:
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Provide the model weights
+Get the model weights. `model.pth` is about 450 MB, so it isn't in the repo.
+Two options:
 
-The trained weights (`model.pth`, ~450 MB) are **not** committed to GitHub
-because they exceed the 100 MB file limit. You have two options:
+- Download it from our Google Drive and drop `model.pth` in the project root:
+  https://drive.google.com/drive/folders/1FoXg5obn5oLQG6qd_-EyBm8j0DYwyw2Y
+- Or just run the app — if it doesn't find a local file, it pulls the weights
+  from that same Drive folder on first launch.
 
-- **Local file:** place `model.pth` in the project root (or set
-  `export MODEL_PATH=/path/to/model.pth`).
-- **Automatic download:** if no local file is found, the app downloads the
-  weights from the shared Google Drive folder on first run (via `gdown`).
-
-### 3. Run
+Start the app:
 
 ```bash
 streamlit run streamlit_app.py
 ```
 
-Streamlit opens the app at **http://localhost:8501**.
+It opens at http://localhost:8501.
 
-## Deploying to Streamlit Community Cloud
+## How the model works
 
-1. Push this repo to GitHub (already done).
-2. On [share.streamlit.io](https://share.streamlit.io), create a new app
-   pointing at `streamlit_app.py`.
-3. The app downloads `model.pth` from Google Drive automatically on first run.
+- EfficientNetV2L with the classifier swapped for a single output
+- Input images are resized to 112×112 and normalized with ImageNet stats
+- One logit, run through a sigmoid, gives the probability of malignant
+- Trained with `BCEWithLogitsLoss`; validation accuracy landed around 96%
 
-> Note: EfficientNetV2L is a large model. On the free Community Cloud tier
-> (limited RAM), loading may be slow or memory-constrained; a machine with
-> ≥ 2 GB RAM is recommended.
+The full training run is in `notebooks/train.ipynb`, and
+`notebooks/test.ipynb` shows inference on a single image.
 
-## Model details
+## Layout
 
-- **Architecture:** EfficientNetV2L with a single-logit classifier head
-- **Input:** 112×112 RGB, ImageNet normalization
-- **Output:** one logit → `sigmoid` → P(malignant); threshold 0.5
-- **Loss:** `BCEWithLogitsLoss`
-- Reported validation accuracy ≈ **96%**
-
-See `notebooks/train.ipynb` for the full training pipeline.
+```
+streamlit_app.py     the app and inference code
+.streamlit/          theme
+notebooks/           training and inference notebooks
+requirements.txt
+model.pth            weights (not committed — see above)
+```
